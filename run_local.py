@@ -72,11 +72,16 @@ if __name__ == "__main__":
     print(f"[Server] Database ready with {count} application records.")
     db_conn.close()
 
-    # Pre-warm evaluation dashboard benchmark
-    print("[Server] Initializing Evaluation Dashboard benchmark cache...")
-    import eval_dashboard
-    eval_dashboard.CACHED_EVAL_DATA = eval_dashboard.run_all_evals()
-    print(f"[Server] Benchmark suite verified: {eval_dashboard.CACHED_EVAL_DATA['pass_rate_percent']}% pass rate across {eval_dashboard.CACHED_EVAL_DATA['total_assertions']} assertions.")
+    def prewarm_eval_cache():
+        try:
+            import eval_dashboard
+            print("[Server] Initializing Evaluation Dashboard benchmark cache in background...")
+            eval_dashboard.CACHED_EVAL_DATA = eval_dashboard.run_all_evals()
+            print(f"[Server] Benchmark suite verified: {eval_dashboard.CACHED_EVAL_DATA['pass_rate_percent']}% pass rate across {eval_dashboard.CACHED_EVAL_DATA['total_assertions']} assertions.")
+        except Exception as e:
+            print(f"[Server] Background prewarm error: {e}")
+
+    threading.Thread(target=prewarm_eval_cache, daemon=True).start()
 
     # Start background scheduler
     sched_thread = threading.Thread(target=run_scheduler_loop, daemon=True)

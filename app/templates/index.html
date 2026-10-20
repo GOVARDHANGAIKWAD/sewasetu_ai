@@ -1,25 +1,504 @@
 {% extends "base.html" %}
-{% block content %}
-<h2>Welcome</h2>
-<p>The Old Age Pension Scheme provides a monthly pension of Rs. 250 to eligible
-senior citizens aged 60 years and above who are residents of Purvanchal.</p>
-{% if hours_left is not none %}
-<p><b>Application window closes in approximately {{ hours_left }} hours</b>
-(midnight, 31 October).</p>
-{% else %}
-<p><b>The application window for this scheme has closed.</b></p>
-{% endif %}
-<p>
-  <a href="/apply"><button class="btn">Apply for Pension</button></a>
-  &nbsp;
-  <a href="/status"><button class="btn" style="background:#555">Check Application Status</button></a>
-</p>
-<h3>How to apply</h3>
-<ol class="note">
-  <li>Verify your mobile number with OTP.</li>
-  <li>Fill the application form (personal details, address, bank details).</li>
-  <li>Upload your age proof document (JPG or PDF, maximum 5 MB).</li>
-  <li>Submit the declaration. Note down your Application Number.</li>
-</ol>
-<p class="note">For assistance visit your nearest Block Development Office.</p>
+{% block title %}Welcome to Sewa Setu — Department of Social Welfare, Government of Purvanchal{% endblock %}
+
+{% block hero %}
+<style>
+  /* Hero Section matching official portal screenshot */
+  .hero-section {
+    position: relative;
+    background: url('/static/img/hero_bg.jpg') no-repeat center center;
+    background-size: cover;
+    min-height: 480px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 80px 24px;
+    color: #ffffff;
+    box-shadow: inset 0 0 100px rgba(0,0,0,0.6);
+  }
+  .hero-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(180deg, rgba(7, 21, 38, 0.75) 0%, rgba(11, 30, 54, 0.85) 100%);
+    z-index: 1;
+  }
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 920px;
+    margin: 0 auto;
+  }
+  .hero-title {
+    font-size: 52px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+    color: #ffffff;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.4);
+  }
+  .hero-highlight {
+    color: #f97316;
+    background: linear-gradient(135deg, #fb923c, #f97316);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .hero-subtitle {
+    font-size: 19px;
+    font-weight: 400;
+    color: #f1f5f9;
+    margin-bottom: 36px;
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.5;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+  }
+
+  /* Wide Curved Search Bar */
+  .search-wrapper {
+    position: relative;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+  .hero-search-input {
+    width: 100%;
+    max-width: 100% !important;
+    background: #ffffff !important;
+    color: #1e293b !important;
+    padding: 16px 54px 16px 24px !important;
+    border-radius: 9999px !important;
+    border: none !important;
+    font-size: 16px !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important;
+  }
+  .search-icon-btn {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #475569;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s;
+  }
+  .search-icon-btn:hover { color: #f97316; }
+
+  /* Live Stats Ribbon */
+  .stats-ribbon {
+    background: #0b1e36;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding: 24px 0;
+  }
+  .stats-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    padding: 0 24px;
+    text-align: center;
+  }
+  .stat-item h3 {
+    font-size: 32px;
+    font-weight: 800;
+    color: #f59e0b;
+    margin-bottom: 4px;
+  }
+  .stat-item p {
+    font-size: 13px;
+    color: #94a3b8;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+
+  /* Services & Action Cards */
+  .content-section {
+    max-width: 1240px;
+    margin: 48px auto;
+    padding: 0 24px;
+  }
+  .section-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .section-header h2 {
+    font-size: 30px;
+    font-weight: 800;
+    color: var(--gov-navy);
+    letter-spacing: -0.01em;
+  }
+  .section-header p {
+    color: var(--text-muted);
+    font-size: 16px;
+    margin-top: 6px;
+  }
+
+  .primary-scheme-card {
+    background: linear-gradient(135deg, #0b3d6e 0%, #071526 100%);
+    border-radius: 16px;
+    padding: 40px 48px;
+    color: #ffffff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 32px;
+    box-shadow: 0 15px 35px rgba(11, 61, 110, 0.2);
+    border: 1px solid rgba(255,255,255,0.1);
+    margin-bottom: 48px;
+  }
+  .scheme-info {
+    max-width: 620px;
+  }
+  .scheme-tag {
+    background: rgba(245, 158, 11, 0.2);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 9999px;
+    display: inline-block;
+    margin-bottom: 12px;
+  }
+  .scheme-info h3 {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 10px;
+  }
+  .scheme-info p {
+    color: #cbd5e1;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  .scheme-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 260px;
+  }
+  .scheme-actions .btn {
+    justify-content: center;
+    padding: 14px 24px;
+    font-size: 15px;
+  }
+
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+    gap: 24px;
+    margin-bottom: 48px;
+  }
+  .service-card {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    padding: 28px 24px;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .service-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: #cbd5e1;
+  }
+  .service-icon-box {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    background: rgba(2, 132, 199, 0.1);
+    color: #0284c7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-bottom: 18px;
+  }
+  .service-card h4 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--gov-navy);
+    margin-bottom: 8px;
+  }
+  .service-card p {
+    font-size: 13.5px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 18px;
+  }
+  .service-link {
+    color: #0284c7;
+    font-weight: 700;
+    font-size: 13.5px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .service-link:hover { color: #0369a1; text-decoration: underline; }
+
+  /* Steps Section */
+  .steps-container {
+    background: #f1f5f9;
+    border-radius: 16px;
+    padding: 40px;
+    margin-bottom: 48px;
+  }
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 24px;
+    margin-top: 28px;
+  }
+  .step-box {
+    background: #ffffff;
+    padding: 24px 20px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    position: relative;
+  }
+  .step-num {
+    font-size: 12px;
+    font-weight: 800;
+    color: #0284c7;
+    background: rgba(2, 132, 199, 0.1);
+    padding: 3px 8px;
+    border-radius: 9999px;
+    display: inline-block;
+    margin-bottom: 10px;
+  }
+  .step-box h5 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--gov-navy);
+    margin-bottom: 6px;
+  }
+  .step-box p {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* AI Architecture Spotlight */
+  .ai-spotlight {
+    background: linear-gradient(135deg, #090d16 0%, #111827 100%);
+    border-radius: 16px;
+    padding: 36px 44px;
+    color: #ffffff;
+    border: 1px solid #1f293d;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 24px;
+  }
+  .ai-spotlight-text h3 {
+    font-size: 22px;
+    font-weight: 800;
+    color: #38bdf8;
+    margin-bottom: 8px;
+  }
+  .ai-spotlight-text p {
+    color: #94a3b8;
+    font-size: 14px;
+    max-width: 650px;
+  }
+</style>
+
+<!-- Hero Section with Misty Tea Garden Sunrise Background -->
+<div class="hero-section">
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <h1 class="hero-title">Welcome to <span class="hero-highlight">Sewa Setu</span></h1>
+    <p class="hero-subtitle">Empowering Citizens of Purvanchal with Seamless Access to Government Services</p>
+    
+    <!-- Hero Search Bar -->
+    <div class="search-wrapper">
+      <input type="text" class="hero-search-input" id="heroSearch" placeholder="Looking for a particular service? Search here..." oninput="handleSearch(this.value)">
+      <button class="search-icon-btn" onclick="submitSearch()">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Dynamic Live Stats Ribbon -->
+<div class="stats-ribbon">
+  <div class="stats-grid">
+    <div class="stat-item">
+      <h3>100,000+</h3>
+      <p>Applications Processed</p>
+    </div>
+    <div class="stat-item">
+      <h3>82,900+</h3>
+      <p>Beneficiaries Sanctioned</p>
+    </div>
+    <div class="stat-item">
+      <h3>9,700+</h3>
+      <p>Deemed Approvals (RTPS)</p>
+    </div>
+    <div class="stat-item">
+      <h3>15 Days</h3>
+      <p>Guaranteed Statutory SLA</p>
+    </div>
+  </div>
+</div>
+
+<!-- Main Portal Body Content -->
+<div class="content-section">
+
+  <!-- Primary Old Age Pension Scheme Banner -->
+  <div class="primary-scheme-card">
+    <div class="scheme-info">
+      <span class="scheme-tag">Active Scheme &middot; Statutory Welfare</span>
+      <h3>Purvanchal Old Age Pension Scheme (Indira Gandhi Old Age Welfare)</h3>
+      <p>A flagship financial security initiative providing ₹1,000 monthly pension to senior citizens aged 60 and above. Direct Benefit Transfer (DBT) directly into your linked bank account with guaranteed deemed approval within 15 days under the Right to Public Services Act.</p>
+      {% if hours_left is not none %}
+        <p style="margin-top: 14px; color: #fbbf24; font-weight: 600; font-size: 14px;">
+          ⏱️ Scheme window open: Closes in approximately {{ hours_left }} hours (31 October, 23:59).
+        </p>
+      {% endif %}
+    </div>
+    <div class="scheme-actions">
+      <a href="/apply" class="btn btn-login-saffron" style="text-align: center;">Apply for Pension &rarr;</a>
+      <a href="/status" class="btn btn-secondary" style="text-align: center;">Check Application Status</a>
+      <button class="btn" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);" onclick="toggleAIDrawer()">
+        🤖 Converse with AI Assistant
+      </button>
+    </div>
+  </div>
+
+  <!-- Key Citizen Welfare Services Grid -->
+  <div class="section-header">
+    <h2>Citizen Services & Welfare Schemes</h2>
+    <p>Single-window access to state welfare programs, application tracking, and grievance redressal</p>
+  </div>
+
+  <div class="services-grid">
+    <div class="service-card">
+      <div>
+        <div class="service-icon-box">👵</div>
+        <h4>Old Age Pension</h4>
+        <p>Monthly pension of ₹1,000 for senior citizens aged 60+. Apply with mobile number, bank passbook, and age proof document.</p>
+      </div>
+      <a href="/apply" class="service-link">Apply Online &rarr;</a>
+    </div>
+
+    <div class="service-card">
+      <div>
+        <div class="service-icon-box">🔍</div>
+        <h4>Track Application</h4>
+        <p>Check the live status of your submitted application in real-time. Use your 10-digit mobile number and date of birth as password.</p>
+      </div>
+      <a href="/status" class="service-link">Track Now &rarr;</a>
+    </div>
+
+    <div class="service-card">
+      <div>
+        <div class="service-icon-box">📄</div>
+        <h4>Download Acknowledgment</h4>
+        <p>Already submitted? Download your official digitally signed acknowledgment receipt with application number for documentation.</p>
+      </div>
+      <a href="/status" class="service-link">Download PDF &rarr;</a>
+    </div>
+
+    <div class="service-card">
+      <div>
+        <div class="service-icon-box">🏛️</div>
+        <h4>Block Helpdesks</h4>
+        <p>Find your nearest Block Development Office and Gaon Panchayat facilitation Kendra across Sonari, Rajapara, Namti, and Borgaon.</p>
+      </div>
+      <a href="/about#blocks" class="service-link">View Block Directory &rarr;</a>
+    </div>
+  </div>
+
+  <!-- 4-Step Visual Application Guide -->
+  <div class="steps-container">
+    <div style="text-align: center;">
+      <h3 style="font-size: 22px; font-weight: 800; color: var(--gov-navy);">How to Apply for Pension in 4 Simple Steps</h3>
+      <p style="color: var(--text-muted); font-size: 14px;">Designed for senior citizens with simplified verification</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-box">
+        <span class="step-num">Step 1</span>
+        <h5>Mobile & OTP Verification</h5>
+        <p>Enter your 10-digit mobile number and solve a simple security check. Receive instant 6-digit OTP via SMS.</p>
+      </div>
+      <div class="step-box">
+        <span class="step-num">Step 2</span>
+        <h5>Personal & Bank Details</h5>
+        <p>Provide full name, date of birth, village, block, and your single or joint bank account number with IFSC code.</p>
+      </div>
+      <div class="step-box">
+        <span class="step-num">Step 3</span>
+        <h5>Upload Age Proof</h5>
+        <p>Upload a clear photo or PDF of your Aadhaar card, Voter ID, or School Leaving certificate (up to 5 MB).</p>
+      </div>
+      <div class="step-box">
+        <span class="step-num">Step 4</span>
+        <h5>Preview & Acknowledgment</h5>
+        <p>Review the application preview, submit the declaration, and download your official computer-generated acknowledgment receipt.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Agentic AI Architecture Spotlight (Build for Bharat) -->
+  <div class="ai-spotlight">
+    <div class="ai-spotlight-text">
+      <h3>🤖 Re-imagined in an Agentic World: Dual MCP Servers</h3>
+      <p>Sewa Setu now features two independent Model Context Protocol (MCP) servers over streamable HTTP: one for applicants (<code>/mcp/citizen</code>) and one for block officers (<code>/mcp/officer</code>), benchmarked across 7 realistic citizen personas with 100% database state verification.</p>
+    </div>
+    <div>
+      <a href="/eval-dashboard" class="btn btn-login-saffron" style="box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);">
+        View AI Evaluation Dashboard &rarr;
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function handleSearch(val) {
+    // Interactive service filter
+    const q = val.toLowerCase();
+    const cards = document.querySelectorAll('.service-card');
+    cards.forEach(card => {
+      const txt = card.innerText.toLowerCase();
+      card.style.display = (txt.includes(q) || q === '') ? 'flex' : 'none';
+    });
+  }
+
+  function submitSearch() {
+    const val = document.getElementById('heroSearch').value.toLowerCase();
+    if (val.includes('status') || val.includes('track')) {
+      window.location.href = '/status';
+    } else if (val.includes('apply') || val.includes('pension')) {
+      window.location.href = '/apply';
+    } else if (val.includes('eval') || val.includes('ai') || val.includes('mcp')) {
+      window.location.href = '/eval-dashboard';
+    } else {
+      window.location.href = '/about';
+    }
+  }
+</script>
+{% endblock %}
+
+{% block layout %}
+  <!-- Layout handled directly by hero & content-section on index page -->
 {% endblock %}

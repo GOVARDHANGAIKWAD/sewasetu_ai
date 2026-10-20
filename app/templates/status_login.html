@@ -1,12 +1,36 @@
 {% extends "base.html" %}
+{% block title %}Citizen Application Status Login — Sewa Setu{% endblock %}
+
 {% block content %}
-<h2>Application Status Portal</h2>
-<form method="post">
-  <label>Mobile Number</label>
-  <input type="text" name="mobile" maxlength="10">
-  <label>Password</label>
-  <input type="password" name="password">
-  <p><button class="btn" type="submit">Login</button></p>
-</form>
-<p class="note"><a href="/status/reset">Forgot password?</a></p>
+<div style="max-width: 480px; margin: 0 auto;">
+  <div style="text-align: center; margin-bottom: 24px;">
+    <div style="width: 56px; height: 56px; background: rgba(2, 132, 199, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; font-size: 26px;">
+      👤
+    </div>
+    <h2 style="font-size: 24px; font-weight: 800; color: var(--gov-navy);">Citizen Status Portal</h2>
+    <p style="color: var(--text-muted); font-size: 14px;">Track your Old Age Pension application and download acknowledgment</p>
+  </div>
+
+  <form method="post" style="background: #f8fafc; padding: 28px; border-radius: 12px; border: 1px solid #e2e8f0;">
+    <label for="mobile">Registered Mobile Number</label>
+    <input type="text" id="mobile" name="mobile" maxlength="10" placeholder="10-digit mobile number" required autofocus>
+
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" placeholder="Date of Birth as DDMMYYYY" required>
+    <p style="font-size: 12px; color: #64748b; margin-top: 4px;">
+      💡 Your password is your Date of Birth as DDMMYYYY (e.g. <strong>15081958</strong>).
+    </p>
+
+    <div style="margin-top: 24px;">
+      <button class="btn btn-login-saffron" style="width: 100%; justify-content: center; padding: 12px;" type="submit">
+        Login to Track Status &rarr;
+      </button>
+    </div>
+  </form>
+
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 18px; font-size: 13px;">
+    <a href="/status/reset" style="color: #0284c7; text-decoration: none;">Forgot password / Need SMS reset?</a>
+    <a href="/apply" style="color: #475569; text-decoration: none;">New Applicant? Apply Here</a>
+  </div>
+</div>
 {% endblock %}
